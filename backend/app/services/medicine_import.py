@@ -250,34 +250,101 @@ async def generate_export_dataframe(db: AsyncSession, branch_id: Optional[UUID] 
     data = []
     for m in medicines:
         if branch_id:
-            inv = next((i for i in m.inventories if i.branch_id == branch_id), None)
-            if not inv:
-                continue
+            summaries_to_export = [i for i in m.inventories if i.branch_id == branch_id]
         else:
-            inv = m.inventories[0] if m.inventories else None
+            summaries_to_export = m.inventories
 
-        data.append(
-            {
-                "Name": m.name,
-                "Generic Name": m.generic_name or "",
-                "Category": m.category.name if m.category else "",
-                "Manufacturer": m.manufacturer.name if m.manufacturer else "",
-                "Potency": m.potency.name if m.potency else "",
-                "Unit": m.unit.name if m.unit else "",
-                "Quantity": inv.total_quantity if (branch_id and inv) else m.quantity,
-                "Selling Price": m.selling_price,
-                "GST Percentage": m.gst_percentage,
-                "HSN Code": m.hsn_code or "",
-                "Description": m.description or "",
-                "Barcode": m.barcode or "",
-                "QR Code": m.qr_code or "",
-                "Active": m.is_active,
-                "Cupboard": inv.cupboard if inv else "",
-                "Rack": inv.rack if inv else "",
-                "Row": inv.row if inv else "",
-                "Column": inv.column if inv else "",
-            }
-        )
+        if not summaries_to_export:
+            # For specific branch, skip if no inventory summary exists.
+            # For all branches, export 0-stock baseline catalog row.
+            if not branch_id:
+                data.append(
+                    {
+                        "Name": m.name,
+                        "Generic Name": m.generic_name or "",
+                        "Category": m.category.name if m.category else "",
+                        "Manufacturer": m.manufacturer.name if m.manufacturer else "",
+                        "Potency": m.potency.name if m.potency else "",
+                        "Unit": m.unit.name if m.unit else "",
+                        "Branch": "",
+                        "Quantity": 0,
+                        "Batch": "",
+                        "Expiry": "",
+                        "Selling Price": m.selling_price,
+                        "GST Percentage": m.gst_percentage,
+                        "HSN Code": m.hsn_code or "",
+                        "Description": m.description or "",
+                        "Barcode": m.barcode or "",
+                        "QR Code": m.qr_code or "",
+                        "Active": m.is_active,
+                        "Cupboard": "",
+                        "Rack": "",
+                        "Row": "",
+                        "Column": "",
+                    }
+                )
+            continue
+
+        for inv in summaries_to_export:
+            if inv.batches:
+                for batch in inv.batches:
+                    expiry_str = ""
+                    if batch.expiry_date:
+                        if hasattr(batch.expiry_date, "strftime"):
+                            expiry_str = batch.expiry_date.strftime("%Y-%m-%d")
+                        else:
+                            expiry_str = str(batch.expiry_date)
+                    data.append(
+                        {
+                            "Name": m.name,
+                            "Generic Name": m.generic_name or "",
+                            "Category": m.category.name if m.category else "",
+                            "Manufacturer": m.manufacturer.name if m.manufacturer else "",
+                            "Potency": m.potency.name if m.potency else "",
+                            "Unit": m.unit.name if m.unit else "",
+                            "Branch": inv.branch.name if (inv and inv.branch) else "",
+                            "Quantity": batch.quantity,
+                            "Batch": batch.batch_number,
+                            "Expiry": expiry_str,
+                            "Selling Price": batch.selling_price if batch.selling_price is not None else m.selling_price,
+                            "GST Percentage": m.gst_percentage,
+                            "HSN Code": m.hsn_code or "",
+                            "Description": m.description or "",
+                            "Barcode": m.barcode or "",
+                            "QR Code": m.qr_code or "",
+                            "Active": m.is_active,
+                            "Cupboard": batch.cupboard if batch.cupboard else (inv.cupboard or ""),
+                            "Rack": batch.rack if batch.rack else (inv.rack or ""),
+                            "Row": batch.row if batch.row else (inv.row or ""),
+                            "Column": batch.column if batch.column else (inv.column or ""),
+                        }
+                    )
+            else:
+                data.append(
+                    {
+                        "Name": m.name,
+                        "Generic Name": m.generic_name or "",
+                        "Category": m.category.name if m.category else "",
+                        "Manufacturer": m.manufacturer.name if m.manufacturer else "",
+                        "Potency": m.potency.name if m.potency else "",
+                        "Unit": m.unit.name if m.unit else "",
+                        "Branch": inv.branch.name if (inv and inv.branch) else "",
+                        "Quantity": inv.total_quantity,
+                        "Batch": "",
+                        "Expiry": "",
+                        "Selling Price": m.selling_price,
+                        "GST Percentage": m.gst_percentage,
+                        "HSN Code": m.hsn_code or "",
+                        "Description": m.description or "",
+                        "Barcode": m.barcode or "",
+                        "QR Code": m.qr_code or "",
+                        "Active": m.is_active,
+                        "Cupboard": inv.cupboard or "",
+                        "Rack": inv.rack or "",
+                        "Row": inv.row or "",
+                        "Column": inv.column or "",
+                    }
+                )
     return pd.DataFrame(data)
 
 async def generate_csv_export(db: AsyncSession, branch_id: Optional[UUID] = None) -> bytes:

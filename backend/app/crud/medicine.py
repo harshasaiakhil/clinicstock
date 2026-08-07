@@ -92,12 +92,14 @@ async def get_medicines(
     else:
         query = query.order_by(sort_column.asc())
 
+    from app.models.inventory import InventorySummary
     query = query.offset(skip).limit(limit).options(
         selectinload(Medicine.category),
         selectinload(Medicine.manufacturer),
         selectinload(Medicine.potency),
         selectinload(Medicine.unit),
-        selectinload(Medicine.inventories),
+        selectinload(Medicine.inventories).selectinload(InventorySummary.branch),
+        selectinload(Medicine.inventories).selectinload(InventorySummary.batches),
     )
     result = await db.execute(query)
     return list(result.scalars().all())
