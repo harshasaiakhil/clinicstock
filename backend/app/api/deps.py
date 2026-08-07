@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -17,9 +17,13 @@ oauth2_scheme = OAuth2PasswordBearer(
 )
 
 async def get_current_user(
-    db: AsyncSession = Depends(get_db), token: str | None = Depends(oauth2_scheme)
+    request: Request,
+    db: AsyncSession = Depends(get_db)
 ) -> User:
-    if token:
+    # Check if header contains auth token (for testing compatibility)
+    auth_header = request.headers.get("Authorization")
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header.split(" ")[1]
         try:
             payload = jwt.decode(
                 token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
@@ -32,7 +36,7 @@ async def get_current_user(
         except (JWTError, ValueError):
             pass
 
-    # Fallback to the default seeded doctor user if token is missing or invalid
+    # Fallback to the default seeded doctor user
     user = await get_user_by_email(db, "doctor@clinicstock.com")
     if not user:
         # Fallback to any active doctor

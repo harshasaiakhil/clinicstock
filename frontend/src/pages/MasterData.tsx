@@ -6,7 +6,7 @@ import * as zod from "zod";
 import { Plus, Edit2, Trash2, Folder } from "lucide-react";
 
 import api from "../api";
-import { useAuth } from "../context/AuthContext";
+import { useUser } from "../hooks/useUser";
 import { Button } from "../components/ui/Button";
 import { Modal } from "../components/ui/Modal";
 
@@ -30,7 +30,7 @@ const unitSchema = zod.object({
 });
 
 export const MasterData: React.FC = () => {
-  const { user } = useAuth();
+  const { user } = useUser();
   const queryClient = useQueryClient();
   const isDoctor = user?.role === "doctor";
 
