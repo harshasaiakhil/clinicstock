@@ -1,4 +1,5 @@
 import os
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -6,9 +7,20 @@ from fastapi.responses import FileResponse
 from app.core.config import settings
 from app.api.v1.api import api_router
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    from app.seed import seed_data
+    try:
+        await seed_data()
+        print("Database auto-seeding completed.")
+    except Exception as e:
+        print(f"Error during auto-seeding: {e}")
+    yield
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    openapi_url=f"{settings.API_V1_STR}/openapi.json"
+    openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    lifespan=lifespan
 )
 
 # Set CORS origins (configured to allow all for local development & react-native apps)
