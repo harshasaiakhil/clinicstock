@@ -1,9 +1,12 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
+import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import { Medicines } from "./pages/Medicines";
+
 import { MasterData } from "./pages/MasterData";
 import { Reports } from "./pages/Reports";
 import { Settings } from "./pages/Settings";
@@ -23,63 +26,71 @@ function App() {
       <AuthProvider>
         <Router>
           <Routes>
-            {/* Dashboard */}
+            {/* Login Route */}
+            <Route path="/login" element={<Login />} />
+
+            {/* Protected Main App Routes */}
             <Route
               path="/"
               element={
-                <Layout>
-                  <Dashboard />
-                </Layout>
+                <ProtectedRoute>
+                  <Layout>
+                    <Dashboard />
+                  </Layout>
+                </ProtectedRoute>
               }
             />
 
-            {/* Medicines */}
             <Route
               path="/medicines"
               element={
-                <Layout>
-                  <Medicines />
-                </Layout>
+                <ProtectedRoute>
+                  <Layout>
+                    <Medicines />
+                  </Layout>
+                </ProtectedRoute>
               }
             />
 
-            {/* Inventory */}
             <Route
               path="/inventory"
               element={<Navigate to="/medicines" replace />}
             />
 
-            {/* Master Data */}
             <Route
               path="/masters"
               element={
-                <Layout>
-                  <MasterData />
-                </Layout>
+                <ProtectedRoute>
+                  <Layout>
+                    <MasterData />
+                  </Layout>
+                </ProtectedRoute>
               }
             />
 
-            {/* Reports */}
             <Route
               path="/reports"
               element={
-                <Layout>
-                  <Reports />
-                </Layout>
+                <ProtectedRoute>
+                  <Layout>
+                    <Reports />
+                  </Layout>
+                </ProtectedRoute>
               }
             />
 
-            {/* Settings */}
             <Route
               path="/settings"
               element={
-                <Layout>
-                  <Settings />
-                </Layout>
+                <ProtectedRoute>
+                  <Layout>
+                    <Settings />
+                  </Layout>
+                </ProtectedRoute>
               }
             />
 
-            {/* Fallback */}
+            {/* Fallback Route */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Router>
