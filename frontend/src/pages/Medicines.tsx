@@ -220,6 +220,7 @@ export const Medicines: React.FC = () => {
 
   // --- Search & Filter States ---
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterBranch, setFilterBranch] = useState("");
   const [locationSearch, setLocationSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
   const [filterManufacturer, setFilterManufacturer] = useState("");
@@ -306,9 +307,10 @@ export const Medicines: React.FC = () => {
 
   // --- Fetch Medicines Catalog ---
   const { data: medicines = [], isLoading: loadingMeds, isError: medError } = useQuery<Medicine[]>({
-    queryKey: ["medicines", searchTerm, filterCategory, filterManufacturer, filterPotency, filterUnit, filterStatus],
+    queryKey: ["medicines", searchTerm, filterBranch, filterCategory, filterManufacturer, filterPotency, filterUnit, filterStatus],
     queryFn: async () => {
       const params: Record<string, any> = { skip: 0, limit: 1000 };
+      if (searchTerm) params.search = searchTerm;
       if (filterCategory) params.category_id = filterCategory;
       if (filterManufacturer) params.manufacturer_id = filterManufacturer;
       if (filterPotency) params.potency_id = filterPotency;
@@ -668,7 +670,9 @@ export const Medicines: React.FC = () => {
 
   const handleExport = async (format: "csv" | "excel") => {
     try {
-      const response = await api.get(`/medicines/export/${format}`, { responseType: "blob" });
+      const params: Record<string, any> = {};
+      if (filterBranch) params.branch_id = filterBranch;
+      const response = await api.get(`/medicines/export/${format}`, { params, responseType: "blob" });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = url;
@@ -724,9 +728,13 @@ export const Medicines: React.FC = () => {
   // Create a unified list where each row maps to a medicine batch.
   // If a medicine has no stock batches at all, we create a single row for that medicine with empty batch values so it's still visible!
   const gridRows: GridRow[] = medicines.flatMap((med): GridRow[] => {
-    const medBatches = batches.filter((b) => b.summary?.medicine_id === med.id);
+    let medBatches = batches.filter((b) => b.summary?.medicine_id === med.id);
+    if (filterBranch) {
+      medBatches = medBatches.filter((b) => b.summary?.branch_id === filterBranch);
+    }
     if (medBatches.length === 0) {
-      // Medicine with no stock batches
+      // If we are filtering by branch, we shouldn't show catalog rows that have no stock in this branch
+      if (filterBranch) return [];
       return [{
         key: `${med.id}-nostock`,
         medicine: med,
@@ -833,7 +841,17 @@ export const Medicines: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+          <select
+            value={filterBranch}
+            onChange={(e) => setFilterBranch(e.target.value)}
+            className="rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs text-slate-700 font-semibold focus:outline-none focus:bg-white"
+          >
+            <option value="">All Branches</option>
+            {branches.map((b) => (
+              <option key={b.id} value={b.id}>{b.name}</option>
+            ))}
+          </select>
           <select
             value={filterCategory}
             onChange={(e) => setFilterCategory(e.target.value)}

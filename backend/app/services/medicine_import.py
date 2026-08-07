@@ -245,11 +245,17 @@ async def parse_excel_import(
         summary.errors.append(f"Failed to parse Excel file: {str(e)}")
         return summary
 
-async def generate_export_dataframe(db: AsyncSession) -> pd.DataFrame:
+async def generate_export_dataframe(db: AsyncSession, branch_id: Optional[UUID] = None) -> pd.DataFrame:
     medicines = await crud_medicine.get_medicines(db, limit=100000)  # get all
     data = []
     for m in medicines:
-        inv = m.inventories[0] if m.inventories else None
+        if branch_id:
+            inv = next((i for i in m.inventories if i.branch_id == branch_id), None)
+            if not inv:
+                continue
+        else:
+            inv = m.inventories[0] if m.inventories else None
+
         data.append(
             {
                 "Name": m.name,
@@ -258,7 +264,7 @@ async def generate_export_dataframe(db: AsyncSession) -> pd.DataFrame:
                 "Manufacturer": m.manufacturer.name if m.manufacturer else "",
                 "Potency": m.potency.name if m.potency else "",
                 "Unit": m.unit.name if m.unit else "",
-                "Quantity": m.quantity,
+                "Quantity": inv.total_quantity if (branch_id and inv) else m.quantity,
                 "Selling Price": m.selling_price,
                 "GST Percentage": m.gst_percentage,
                 "HSN Code": m.hsn_code or "",
@@ -274,13 +280,13 @@ async def generate_export_dataframe(db: AsyncSession) -> pd.DataFrame:
         )
     return pd.DataFrame(data)
 
-async def generate_csv_export(db: AsyncSession) -> bytes:
-    df = await generate_export_dataframe(db)
+async def generate_csv_export(db: AsyncSession, branch_id: Optional[UUID] = None) -> bytes:
+    df = await generate_export_dataframe(db, branch_id=branch_id)
     csv_str = df.to_csv(index=False)
     return csv_str.encode("utf-8")
 
-async def generate_excel_export(db: AsyncSession) -> bytes:
-    df = await generate_export_dataframe(db)
+async def generate_excel_export(db: AsyncSession, branch_id: Optional[UUID] = None) -> bytes:
+    df = await generate_export_dataframe(db, branch_id=branch_id)
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine="openpyxl") as writer:
         df.to_excel(writer, index=False, sheet_name="Medicines")

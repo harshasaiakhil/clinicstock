@@ -84,6 +84,7 @@ const Dashboard: React.FC = () => {
   const [branches, setBranches] = useState<Branch[]>([]);
   const [selectedBranchId, setSelectedBranchId] = useState<string>("");
   const [loading, setLoading] = useState(true);
+  const [branchLoading, setBranchLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Set default branch for assistant
@@ -94,7 +95,12 @@ const Dashboard: React.FC = () => {
   }, [user]);
 
   const loadDashboardData = async () => {
-    setLoading(true);
+    const isInitial = !stats;
+    if (isInitial) {
+      setLoading(true);
+    } else {
+      setBranchLoading(true);
+    }
     setError(null);
     try {
       // 1. Fetch Stats
@@ -117,6 +123,7 @@ const Dashboard: React.FC = () => {
       setError("Failed to fetch dashboard data. Please try again later.");
     } finally {
       setLoading(false);
+      setBranchLoading(false);
     }
   };
 
@@ -174,6 +181,9 @@ const Dashboard: React.FC = () => {
                 </option>
               ))}
             </select>
+            {branchLoading && (
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-teal-600 border-t-transparent ml-2"></div>
+            )}
           </div>
         ) : (
           <div className="flex items-center space-x-2 bg-teal-50 border border-teal-100 rounded-xl px-4 py-2">
@@ -197,7 +207,7 @@ const Dashboard: React.FC = () => {
       )}
 
       {stats && (
-        <>
+        <div className={`transition-opacity duration-200 ${branchLoading ? "opacity-50 pointer-events-none" : ""}`}>
           {/* 1. Core Summary Metrics Cards */}
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
             {/* Total Medicines Card */}
@@ -520,7 +530,7 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
           )}
-        </>
+        </div>
       )}
     </div>
   );

@@ -181,13 +181,14 @@ async def import_medicines(
 
 @router.get("/export/csv")
 async def export_csv(
+    branch_id: Optional[UUID] = None,
     db: AsyncSession = Depends(deps.get_db),
     current_user: User = Depends(deps.get_current_active_user),
 ):
     """
-    Export all medicines to CSV format (accessible by Doctors and Assistants).
+    Export medicines to CSV format (accessible by Doctors and Assistants).
     """
-    csv_bytes = await generate_csv_export(db)
+    csv_bytes = await generate_csv_export(db, branch_id=branch_id)
     return StreamingResponse(
         io.BytesIO(csv_bytes),
         media_type="text/csv",
@@ -196,13 +197,14 @@ async def export_csv(
 
 @router.get("/export/excel")
 async def export_excel(
+    branch_id: Optional[UUID] = None,
     db: AsyncSession = Depends(deps.get_db),
     current_user: User = Depends(deps.get_current_active_user),
 ):
     """
-    Export all medicines to Excel format (accessible by Doctors and Assistants).
+    Export medicines to Excel format (accessible by Doctors and Assistants).
     """
-    excel_bytes = await generate_excel_export(db)
+    excel_bytes = await generate_excel_export(db, branch_id=branch_id)
     return StreamingResponse(
         io.BytesIO(excel_bytes),
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

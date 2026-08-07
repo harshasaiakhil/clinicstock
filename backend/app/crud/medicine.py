@@ -57,8 +57,22 @@ async def get_medicines(
 
     # Filtering
     if search:
+        from app.models.medicine import Category, Manufacturer, MedicineUnit, Potency
+        query = query.outerjoin(Medicine.category)\
+                     .outerjoin(Medicine.manufacturer)\
+                     .outerjoin(Medicine.potency)\
+                     .outerjoin(Medicine.unit)
         query = query.where(
-            (Medicine.name.ilike(f"%{search}%")) | (Medicine.generic_name.ilike(f"%{search}%"))
+            (Medicine.name.ilike(f"%{search}%")) |
+            (Medicine.generic_name.ilike(f"%{search}%")) |
+            (Medicine.hsn_code.ilike(f"%{search}%")) |
+            (Medicine.barcode.ilike(f"%{search}%")) |
+            (Medicine.qr_code.ilike(f"%{search}%")) |
+            (Category.name.ilike(f"%{search}%")) |
+            (Manufacturer.name.ilike(f"%{search}%")) |
+            (Potency.name.ilike(f"%{search}%")) |
+            (MedicineUnit.name.ilike(f"%{search}%")) |
+            (MedicineUnit.code.ilike(f"%{search}%"))
         )
     if category_id:
         query = query.where(Medicine.category_id == category_id)
