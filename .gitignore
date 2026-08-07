@@ -1,21 +1,37 @@
-# Python
+﻿# Python
 __pycache__/
-*.pyc
+**/__pycache__/
+*.py[cod]
 .pytest_cache/
 
-# Virtual Environment
+# Virtual environments
 venv/
-backend/venv/
+.venv/
+**/venv/
 
-# Environment
+# Environment / secrets
 .env
-backend/.env
+*.env
+!.env.example
 
-# Database
+# Databases
 *.db
+*.sqlite
+*.sqlite3
 
-# VS Code
+# Frontend
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+
+# Build/cache
+build/
+*.log
+
+# IDE
 .vscode/
+.idea/
 
 # OS
 .DS_Store

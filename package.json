@@ -1,0 +1,13 @@
+{
+  "name": "clinicstock",
+  "version": "1.0.0",
+  "description": "ClinicStock ERP System - Consolidated Project",
+  "scripts": {
+    "install:all": "npm install --prefix frontend && backend\\venv\\Scripts\\pip install -r backend/requirements.txt",
+    "build:frontend": "npm run build --prefix frontend",
+    "start:backend": "cd backend && venv\\Scripts\\uvicorn app.main:app --reload",
+    "start:prod": "cd backend && venv\\Scripts\\uvicorn app.main:app",
+    "dev": "npm run build --prefix frontend && cd backend && venv\\Scripts\\uvicorn app.main:app --reload",
+    "test": "cd backend && venv\\Scripts\\python -m pytest"
+  }
+}

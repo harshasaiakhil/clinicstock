@@ -8,6 +8,9 @@ from app.api.v1.endpoints import (
     suppliers,
     medicine_units,
     potencies,
+    medicines,
+    inventory,
+    dashboard,
 )
 
 api_router = APIRouter()
@@ -19,3 +22,6 @@ api_router.include_router(manufacturers.router, prefix="/manufacturers", tags=["
 api_router.include_router(suppliers.router, prefix="/suppliers", tags=["suppliers"])
 api_router.include_router(medicine_units.router, prefix="/medicine-units", tags=["medicine-units"])
 api_router.include_router(potencies.router, prefix="/potencies", tags=["potencies"])
+api_router.include_router(medicines.router, prefix="/medicines", tags=["medicines"])
+api_router.include_router(inventory.router, prefix="/inventory", tags=["inventory"])
+api_router.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])

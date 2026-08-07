@@ -22,4 +22,4 @@ class User(Base):
     default_branch = relationship("Branch", back_populates="users")
     activity_logs = relationship("ActivityLog", back_populates="user")
     purchase_orders = relationship("PurchaseOrder", back_populates="created_by_user")
-    stock_histories = relationship("StockHistory", back_populates="user")
+    stock_transactions = relationship("StockTransaction", back_populates="user")

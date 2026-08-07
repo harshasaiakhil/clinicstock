@@ -18,4 +18,4 @@ class Branch(Base):
 
     # Relationships
     users = relationship("User", back_populates="default_branch")
-    inventories = relationship("Inventory", back_populates="branch")
+    inventories = relationship("InventorySummary", back_populates="branch")

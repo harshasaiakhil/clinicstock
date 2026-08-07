@@ -4,10 +4,12 @@ from app.crud import branch as crud_branch
 from app.crud import user as crud_user
 from app.crud import medicine_unit as crud_unit
 from app.crud import potency as crud_potency
+from app.crud import category as crud_category
 from app.schemas.branch import BranchCreate
 from app.schemas.user import UserCreate
 from app.schemas.medicine_unit import MedicineUnitCreate
 from app.schemas.potency import PotencyCreate
+from app.schemas.category import CategoryCreate
 
 async def seed_data():
     async with AsyncSessionLocal() as db:
@@ -101,6 +103,26 @@ async def seed_data():
             if not existing:
                 print(f"Creating potency: {name}...")
                 await crud_potency.create_potency(db, PotencyCreate(name=name))
+
+        # 5. Seed Categories
+        categories_to_seed = [
+            "Mother Tincture",
+            "💧 Dilution",
+            "⚪ Biochemic Tablet",
+            "💊 Pills / Globules",
+            "🧴 Ointment",
+            "💧 Drops",
+            "🧪 Syrup",
+            "🌾 Powder",
+            "🩹 External Application",
+            "⭐ Specialty Medicine",
+            "📦 Others",
+        ]
+        for name in categories_to_seed:
+            existing = await crud_category.get_category_by_name(db, name)
+            if not existing:
+                print("Creating category...")
+                await crud_category.create_category(db, CategoryCreate(name=name))
 
         print("Seeding finished successfully.")
 
