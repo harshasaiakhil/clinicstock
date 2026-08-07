@@ -109,7 +109,7 @@ npm run dev
 ```
 
 The application will be accessible at:
-👉 **[http://localhost:8000/](http://localhost:8000/)**
+👉 **[https://clinicstock-wine.vercel.app/](https://clinicstock-wine.vercel.app/)**
 
 - Direct URL paths (like `/medicines`, `/reports`) and browser refreshes are handled gracefully by client-side routing on the backend.
 - API documentation can be accessed directly at `http://localhost:8000/docs`.
