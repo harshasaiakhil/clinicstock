@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { useUser } from "../hooks/useUser";
+import { useAuth } from "../context/AuthContext";
 import {
   LayoutDashboard,
   Pill,
@@ -18,7 +18,7 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const { user } = useUser();
+  const { user } = useAuth();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -165,8 +165,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <div className="flex items-center space-x-4">
             {/* Branch pill tag */}
             {user?.default_branch && (
-              <div className="text-xs font-semibold text-slate-500 bg-slate-100/75 border border-slate-200/50 rounded-lg px-2.5 py-1.5 hidden sm:flex items-center space-x-1.5 shadow-sm">
-                <Building className="h-3.5 w-3.5 text-teal-600" />
+              <div className="flex items-center space-x-1.5 rounded-full bg-slate-50 border border-slate-200 px-3.5 py-1 text-xs text-slate-600 shadow-sm font-medium">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 <span>Active Branch: <strong className="text-slate-800">{user.default_branch.name}</strong></span>
               </div>
             )}
@@ -175,7 +175,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <div className="h-8 w-px bg-slate-200" />
             <div className="flex items-center space-x-2.5">
               <span className="text-xs font-semibold text-slate-700 hidden md:block">
-                Welcome, ClinicStock
+                Welcome, {user?.first_name}
               </span>
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-600 shadow-sm border border-slate-200">
                 <User className="h-4 w-4" />

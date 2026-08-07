@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 
 import api from "../api";
-import { useUser } from "../hooks/useUser";
+import { useAuth } from "../context/AuthContext";
 
 interface Branch {
   id: string;
@@ -65,7 +65,7 @@ interface StockTx {
 }
 
 export const Reports: React.FC = () => {
-  const { user } = useUser();
+  const { user } = useAuth();
   const isDoctor = user?.role === "doctor";
   const [activeReport, setActiveReport] = useState<"low-stock" | "expiry" | "valuation" | "tx">("low-stock");
   const [selectedBranchId, setSelectedBranchId] = useState("");

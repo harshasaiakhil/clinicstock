@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 
 import api from "../api";
-import { useUser } from "../hooks/useUser";
+import { useAuth } from "../context/AuthContext";
 import { Button } from "../components/ui/Button";
 import { Modal } from "../components/ui/Modal";
 
@@ -214,7 +214,7 @@ const adjustSchema = zod.object({
 });
 
 export const Medicines: React.FC = () => {
-  const { user } = useUser();
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const isDoctor = user?.role === "doctor";
 

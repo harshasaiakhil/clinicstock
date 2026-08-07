@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import api from "../api";
-import { useUser } from "../hooks/useUser";
+import { useAuth } from "../context/AuthContext";
 import {
   Pill,
   Boxes,
@@ -79,7 +79,7 @@ interface DashboardStats {
 }
 
 const Dashboard: React.FC = () => {
-  const { user } = useUser();
+  const { user } = useAuth();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [selectedBranchId, setSelectedBranchId] = useState<string>("");

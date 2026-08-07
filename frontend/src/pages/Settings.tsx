@@ -6,7 +6,7 @@ import * as zod from "zod";
 import { Plus, Landmark } from "lucide-react";
 
 import api from "../api";
-import { useUser } from "../hooks/useUser";
+import { useAuth } from "../context/AuthContext";
 import { Button } from "../components/ui/Button";
 import { Modal } from "../components/ui/Modal";
 
@@ -45,7 +45,7 @@ const branchCreateSchema = zod.object({
 });
 
 export const Settings: React.FC = () => {
-  const { user: currentUser } = useUser();
+  const { user: currentUser } = useAuth();
   const queryClient = useQueryClient();
   const isDoctor = currentUser?.role === "doctor";
 
